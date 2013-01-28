@@ -104,7 +104,7 @@
   }
 
   function setAffixedWidth($elem) {
-    var delta = $elem.outerWidth() - $elem.innerWidth();
+    var delta = $elem.outerWidth() - $elem.width();
     $elem.width($elem.parent().width() - delta);
   }
 
