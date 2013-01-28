@@ -4,8 +4,8 @@
   var context = this,
       $ = context.jQuery,
       fixPoints = {},
-      proxyId = 'nyt-affix-proxy-' + Date.parse(new Date()),
-      affixedClass = 'nyt-affixed',
+      proxyId = 'blutack-proxy-' + Date.parse(new Date()),
+      affixedClass = 'blutacked',
       watched = 0,
       lastY;
 
