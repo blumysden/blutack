@@ -7,8 +7,6 @@
       proxyId = 'nyt-affix-proxy-' + Date.parse(new Date()),
       affixedClass = 'nyt-affixed',
       watched = 0,
-      maxY = 0,
-      minY = 0,
       lastY;
 
   function affix(options) {
@@ -29,11 +27,6 @@
     } else {
       fixPoints[fixAt].free.push($elem);
     }
-    if (fixAt > maxY) {
-      maxY = fixAt;
-    } else if (fixAt < minY) {
-      minY = fixAt;
-    }
     proxyId += 1;
     watched += 1;
     if (watched == 1) {
@@ -46,7 +39,6 @@
     var scrollTop = $(window).scrollTop(),
         scrollDir = (e && lastY !== undefined) ? ((scrollTop > lastY) ?
           'down' : 'up') : null,
-        buffer = 20,
         point,
         $elem,
         props,
@@ -61,8 +53,7 @@
       lastY = scrollTop;
     }
 
-    if (!watched || (scrollDir == 'down' && scrollTop > maxY + buffer) ||
-        (scrollDir == 'up' && scrollTop <= minY - buffer)) {
+    if (!watched) {
       return false;
     }
 
