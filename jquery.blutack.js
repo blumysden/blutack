@@ -6,7 +6,10 @@
       fixPoints = {},
       proxyId = 'nyt-affix-proxy-' + Date.parse(new Date()),
       affixedClass = 'nyt-affixed',
-      watched = 0;
+      watched = 0,
+      maxY = 0,
+      minY = 0,
+      lastY;
 
   function affix(options) {
     var $elem = $(this),
@@ -26,6 +29,11 @@
     } else {
       fixPoints[fixAt].free.push($elem);
     }
+    if (fixAt > maxY) {
+      maxY = fixAt;
+    } else if (fixAt < minY) {
+      minY = fixAt;
+    }
     proxyId += 1;
     watched += 1;
     if (watched == 1) {
@@ -34,8 +42,11 @@
     checkAffixed();
   }
   
-  function checkAffixed() {
+  function checkAffixed(e) {
     var scrollTop = $(window).scrollTop(),
+        scrollDir = (e && lastY !== undefined) ? ((scrollTop > lastY) ?
+          'down' : 'up') : null,
+        buffer = 20,
         point,
         $elem,
         props,
@@ -45,15 +56,22 @@
         y,
         i,
         count;
-    if (!watched) {
+
+    if (e) {
+      lastY = scrollTop;
+    }
+
+    if (!watched || (scrollDir == 'down' && scrollTop > maxY + buffer) ||
+        (scrollDir == 'up' && scrollTop <= minY - buffer)) {
       return false;
     }
+
     for (y in fixPoints) {
       if (fixPoints.hasOwnProperty(y)) {
         point = fixPoints[y];
         affixed = point.affixed;
         free = point.free;
-        if (scrollTop > y && !point.fixing) {
+        if (scrollDir != 'up' && scrollTop > y && !point.fixing) {
           // affix!
           point.fixing = true;
           // debugger;
@@ -70,14 +88,13 @@
             $elem.css({
               position: 'fixed',
               top: props.offsetTop,
-              width: setAffixedWidth($elem),
-              // 'z-index': 10000
+              width: setAffixedWidth($elem)
             }).
             addClass(affixedClass);
             affixed.push($elem);
           }
           point.fixing = false;
-        } else if (scrollTop <= y && !point.fixing) {
+        } else if (scrollDir != 'down' && scrollTop <= y && !point.fixing) {
           point.fixing = true;
           for (i = affixed.length - 1; i >= 0; i--) {
             $elem = affixed.pop();
@@ -102,6 +119,7 @@
 
   function initAffix() {
     if(watched) {
+      // lastY = $(window).scrollTop();
       $(window).scroll(checkAffixed);
       $('body').on('orientationchange', function() {
           var y,
