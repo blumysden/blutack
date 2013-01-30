@@ -25,14 +25,21 @@
   function add(options) {
     var $elem = $(this),
         top = options.offsetTop,
-        tackAt = $elem.offset().top - top,
+        offset = $elem.offset(),
+        tackAt = offset.top - top,
+        position = $elem.css('position') || 'static',
         props = {
           offsetTop: top,
+          offsetLeft: (position != 'static') ? offset.left : 'auto',
           tackAt: tackAt,
           proxyId: proxyId + proxyCounter,
-          position: $elem.css('position') || 'static',
-          width: (options.freezeWidth) ? $elem.css('width') : null,
-          top: $elem.css('top') || 'auto'
+          initial: {
+            position: position,
+            width: (options.freezeWidth) ? $elem.css('width') : 'auto',
+            top: $elem.css('top') || 'auto',
+            right: $elem.css('right'),
+            left: $elem.css('left')
+          }
         };
     // don't re-add:
     if (getProps($elem)) {
@@ -40,7 +47,6 @@
     } else {
       setProps($elem, props);
     }
-    console.log('added');
     if (!tackPoints[tackAt]) {
       tackPoints[tackAt] = {
         free: [$elem],
@@ -88,7 +94,9 @@
     $elem.css({
       position: 'fixed',
       top: props.offsetTop,
-      width: setTackededWidth($elem)
+      width: setTackededWidth($elem),
+      left: props.offsetLeft,
+      right: 'auto'
     }).
     addClass(tackedClass);
   }
@@ -96,10 +104,7 @@
   function peel($elem) {
     var props = getProps($elem);
     $('#' + props.proxyId).hide();
-    $elem.css({
-      position: props.position,
-      top: props.top
-    }).removeClass(tackedClass);
+    $elem.css(props.initial).removeClass(tackedClass);
   }
   
   function checkTacked(e) {
@@ -152,8 +157,8 @@
 
   function setTackededWidth($elem) {
     var props = getProps($elem),
-        setTo = props.width || $elem.parent().width() -
-        ($elem.outerWidth() - $elem.width());
+        setTo = (props.initial.width != 'auto') ? props.initial.width :
+          $elem.parent().width() - ($elem.outerWidth() - $elem.width());
     $elem.width(setTo);
   }
 
