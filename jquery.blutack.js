@@ -14,6 +14,14 @@
     return false;
   }
 
+  function getProps($elem) {
+    return $elem.data('tackProps');
+  }
+
+  function setProps($elem, props) {
+    $elem.data('tackProps', props);
+  }
+
   function add(options) {
     var $elem = $(this),
         top = options.offsetTop,
@@ -26,7 +34,13 @@
           width: (options.freezeWidth) ? $elem.css('width') : null,
           top: $elem.css('top') || 'auto'
         };
-    $elem.data('tackProps', props);
+    // don't re-add:
+    if (getProps($elem)) {
+      return;
+    } else {
+      setProps($elem, props);
+    }
+    console.log('added');
     if (!tackPoints[tackAt]) {
       tackPoints[tackAt] = {
         free: [$elem],
@@ -45,7 +59,7 @@
 
   function remove() {
     var $elem = $(this),
-        props = $elem.data('tackProps') || {},
+        props = getProps($elem) || {},
         group = ($elem.hasClass(tackedClass)) ? 'tacked' : 'free',
         point = tackPoints[props.tackAt],
         i;
@@ -54,6 +68,7 @@
         if (point[group][i].get(0) == this) {
           point[group].splice(i, 1);
           peel($elem);
+          setProps($elem, null);
           watched -= 1;
           break;
         }
@@ -62,7 +77,7 @@
   }
 
   function tack($elem) {
-    var props = $elem.data('tackProps'),
+    var props = getProps($elem),
         $proxy = $('#' + props.proxyId);
     if (!$proxy.length) {
       $proxy = $('<div id="' + props.proxyId + '"></div>').
@@ -79,7 +94,7 @@
   }
 
   function peel($elem) {
-    var props = $elem.data('tackProps');
+    var props = getProps($elem);
     $('#' + props.proxyId).hide();
     $elem.css({
       position: props.position,
@@ -136,7 +151,7 @@
   }
 
   function setTackededWidth($elem) {
-    var props = $elem.data('tackProps'),
+    var props = getProps($elem),
         setTo = props.width || $elem.parent().width() -
         ($elem.outerWidth() - $elem.width());
     $elem.width(setTo);
