@@ -3,47 +3,89 @@
 
   var context = this,
       $ = context.jQuery,
-      fixPoints = {},
+      tackPoints = {},
       proxyId = 'blutack-proxy-' + Date.parse(new Date()),
-      affixedClass = 'blutacked',
+      tackedClass = 'blutacked',
       watched = 0,
       lastY;
 
-  function affix(options) {
+  function add(options) {
     var $elem = $(this),
         top = options.offsetTop,
-        fixAt = $elem.offset().top - top,
+        tackAt = $elem.offset().top - top,
         props = {
           offsetTop: top,
-          fixAt: fixAt,
+          tackAt: tackAt,
           proxyId: proxyId
         };
-    $elem.data('affixProps', props);
-    if (!fixPoints[fixAt]) {
-      fixPoints[fixAt] = {
+    $elem.data('tackProps', props);
+    if (!tackPoints[tackAt]) {
+      tackPoints[tackAt] = {
         free: [$elem],
-        affixed: []
+        tacked: []
       };
     } else {
-      fixPoints[fixAt].free.push($elem);
+      tackPoints[tackAt].free.push($elem);
     }
     proxyId += 1;
     watched += 1;
     if (watched == 1) {
-      initAffix();
+      initTacked();
     }
-    checkAffixed();
+    checkTacked();
+  }
+
+  function remove() {
+    var $elem = $(this),
+        props = $elem.data('tackProps') || {},
+        group = ($elem.hasClass(tackedClass)) ? 'tacked' : 'free',
+        point = tackPoints[props.tackAt],
+        i;
+    if (point) {
+      for (i = point[group].length - 1; i >= 0; i--) {
+        if (point[group][i].get(0) == this) {
+          point[group].splice(i, 1);
+          peel($elem);
+          watched -= 1;
+          break;
+        }
+      }
+    }
+  }
+
+  function tack($elem) {
+    var props = $elem.data('tackProps'),
+        $proxy = $('#' + props.proxyId);
+    if (!$proxy.length) {
+      $proxy = $('<div id="' + props.proxyId + '"></div>').
+        height(props.height).
+        insertBefore($elem);
+    }
+    $proxy.show();
+    $elem.css({
+      position: 'fixed',
+      top: props.offsetTop,
+      width: setTackededWidth($elem)
+    }).
+    addClass(tackedClass);
+  }
+
+  function peel($elem) {
+    var props = $elem.data('tackProps');
+    $('#' + props.proxyId).hide();
+    $elem.css({
+      position: 'static',
+      top: 'auto'
+    }).removeClass(tackedClass);
   }
   
-  function checkAffixed(e) {
+  function checkTacked(e) {
     var scrollTop = $(window).scrollTop(),
         scrollDir = (e && lastY !== undefined) ? ((scrollTop > lastY) ?
           'down' : 'up') : null,
         point,
         $elem,
-        props,
-        $proxy,
-        affixed,
+        tacked,
         free,
         y,
         i,
@@ -57,10 +99,10 @@
       return false;
     }
 
-    for (y in fixPoints) {
-      if (fixPoints.hasOwnProperty(y)) {
-        point = fixPoints[y];
-        affixed = point.affixed;
+    for (y in tackPoints) {
+      if (tackPoints.hasOwnProperty(y)) {
+        point = tackPoints[y];
+        tacked = point.tacked;
         free = point.free;
         if (scrollDir != 'up' && scrollTop > y && !point.fixing) {
           // affix!
@@ -68,33 +110,15 @@
           // debugger;
           for (i = free.length - 1; i >= 0; i--) {
             $elem = free.pop();
-            props = $elem.data('affixProps');
-            $proxy = $('#' + props.proxyId);
-            if (!$proxy.length) {
-              $proxy = $('<div id="' + props.proxyId + '"></div>').
-                height(props.height).
-                insertBefore($elem);
-            }
-            $proxy.show();
-            $elem.css({
-              position: 'fixed',
-              top: props.offsetTop,
-              width: setAffixedWidth($elem)
-            }).
-            addClass(affixedClass);
-            affixed.push($elem);
+            tack($elem);
+            tacked.push($elem);
           }
           point.fixing = false;
         } else if (scrollDir != 'down' && scrollTop <= y && !point.fixing) {
           point.fixing = true;
-          for (i = affixed.length - 1; i >= 0; i--) {
-            $elem = affixed.pop();
-            props = $elem.data('affixProps');
-            $('#' + props.proxyId).hide();
-            $elem.css({
-              position: 'static',
-              top: 'auto'
-            }).removeClass(affixedClass);
+          for (i = tacked.length - 1; i >= 0; i--) {
+            $elem = tacked.pop();
+            peel($elem);
             free.push($elem);
           }
           point.fixing = false;
@@ -103,39 +127,44 @@
     }
   }
 
-  function setAffixedWidth($elem) {
+  function setTackededWidth($elem) {
     var delta = $elem.outerWidth() - $elem.width();
     $elem.width($elem.parent().width() - delta);
   }
 
-  function initAffix() {
+  function initTacked() {
     if(watched) {
       // lastY = $(window).scrollTop();
-      $(window).scroll(checkAffixed);
+      $(window).scroll(checkTacked);
       $('body').on('orientationchange', function() {
           var y,
               i;
-          setAffixedWidth();
-          for (y in fixPoints) {
-            for (i = fixPoints[y].affixed.length - 1; i >= 0; i--) {
-              setAffixedWidth(fixPoints[y].affixed[i]);
+          setTackededWidth();
+          for (y in tackPoints) {
+            for (i = tackPoints[y].tacked.length - 1; i >= 0; i--) {
+              setTackededWidth(tackPoints[y].tacked[i]);
             }
           }
-          checkAffixed();
+          checkTacked();
       }).on('touchend', function(e) {
         // Since scroll doesn't register until scrollend.
         // This seems to work well on scroll down anyway.
-        checkAffixed();
+        checkTacked();
       });
     }
   }
 
   $.fn.blutack = function(options) {
+    if (options == 'remove') {
+      return this.each(function() {
+        remove.apply(this, [opts]);
+      });
+    }
     var opts = $.extend({
       offsetTop: 0
     }, options || {});
     return this.each(function() {
-      affix.apply(this, [opts]);
+      add.apply(this, [opts]);
     });
   };
 
