@@ -4,10 +4,15 @@
   var context = this,
       $ = context.jQuery,
       tackPoints = {},
-      proxyId = 'blutack-proxy-' + Date.parse(new Date()),
+      proxyCounter = 0,
+      proxyId = 'blutack-proxy-',
       tackedClass = 'blutacked',
       watched = 0,
       lastY;
+
+  if ($.fn.blutack) {
+    return false;
+  }
 
   function add(options) {
     var $elem = $(this),
@@ -16,7 +21,10 @@
         props = {
           offsetTop: top,
           tackAt: tackAt,
-          proxyId: proxyId
+          proxyId: proxyId + proxyCounter,
+          position: $elem.css('position') || 'static',
+          width: (options.freezeWidth) ? $elem.css('width') : null,
+          top: $elem.css('top') || 'auto'
         };
     $elem.data('tackProps', props);
     if (!tackPoints[tackAt]) {
@@ -27,7 +35,7 @@
     } else {
       tackPoints[tackAt].free.push($elem);
     }
-    proxyId += 1;
+    proxyCounter += 1;
     watched += 1;
     if (watched == 1) {
       initTacked();
@@ -74,8 +82,8 @@
     var props = $elem.data('tackProps');
     $('#' + props.proxyId).hide();
     $elem.css({
-      position: 'static',
-      top: 'auto'
+      position: props.position,
+      top: props.top
     }).removeClass(tackedClass);
   }
   
@@ -128,8 +136,10 @@
   }
 
   function setTackededWidth($elem) {
-    var delta = $elem.outerWidth() - $elem.width();
-    $elem.width($elem.parent().width() - delta);
+    var props = $elem.data('tackProps'),
+        setTo = props.width || $elem.parent().width() -
+        ($elem.outerWidth() - $elem.width());
+    $elem.width(setTo);
   }
 
   function initTacked() {
@@ -161,7 +171,8 @@
       });
     }
     var opts = $.extend({
-      offsetTop: 0
+      offsetTop: 0,
+      freezeWidth: false
     }, options || {});
     return this.each(function() {
       add.apply(this, [opts]);
