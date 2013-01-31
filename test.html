@@ -41,7 +41,7 @@
 
   <div id="container">
     <div id="top">
-      <div class="blutack">
+      <div class="blutack" data-blutack-options="offsetTop: 20; freezeWidth: false; foo: bar">
         <p>This should be automatically affixed</p>
       </div>
       <div id="fixme">
@@ -58,7 +58,7 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $('#fixme').blutack({
-        offsetTop: 51
+        offsetTop: 71
       });
       $('.right-fix').blutack()
     });

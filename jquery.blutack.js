@@ -184,18 +184,47 @@
     }
   }
 
+  function parseOptions(elem, options) {
+    var defaultOptions = {
+          offsetTop: 0,
+          freezeWidth: false
+        },
+        attrOptions = ($(elem).data('blutack-options') || '').split(';'),
+        passedOptions = {},
+        parts,
+        prop,
+        val,
+        nums,
+        i;
+    for (i = attrOptions.length - 1; i >= 0; i--) {
+      parts = attrOptions[i].split(':');
+      if (parts.length == 2) {
+        prop = $.trim(parts[0]);
+        if (defaultOptions[prop] !== undefined) {
+          val = $.trim(parts[1]);
+          nums = val.match(/d+/);
+          if (nums && nums.length == val.length) {
+            val = Number(val);
+          } else if (val === 'false') {
+            val = false;
+          } else if (val === 'true') {
+            val = true;
+          }
+          passedOptions[prop] = val;
+        }
+      }
+    }
+    return $.extend({}, defaultOptions, passedOptions, options);
+  }
+
   $.fn.blutack = function(options) {
     if (options == 'remove') {
       return this.each(function() {
-        remove.apply(this, [opts]);
+        remove.apply(this);
       });
     }
-    var opts = $.extend({
-      offsetTop: 0,
-      freezeWidth: false
-    }, options || {});
     return this.each(function() {
-      add.apply(this, [opts]);
+      add.apply(this, [parseOptions(this, options)]);
     });
   };
 
