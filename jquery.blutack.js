@@ -23,6 +23,10 @@
   }
 
   function add(options) {
+    // don't re-add:
+    if (getProps($(this))) {
+      return;
+    }
     var $elem = $(this),
         top = options.offsetTop,
         offset = $elem.offset(),
@@ -41,12 +45,8 @@
             left: $elem.css('left')
           }
         };
-    // don't re-add:
-    if (getProps($elem)) {
-      return;
-    } else {
-      setProps($elem, props);
-    }
+    
+    setProps($elem, props);
     if (!tackPoints[tackAt]) {
       tackPoints[tackAt] = {
         free: [$elem],
