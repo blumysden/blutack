@@ -76,6 +76,7 @@
           peel($elem);
           setProps($elem, null);
           watched -= 1;
+          $('#' + props.proxyId).remove();
           break;
         }
       }
