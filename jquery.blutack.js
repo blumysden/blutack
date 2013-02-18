@@ -8,6 +8,7 @@
       proxyId = 'blutack-proxy-',
       tackedClass = 'blutacked',
       watched = 0,
+      hasInitialized = false,
       lastY;
 
   if ($.fn.blutack) {
@@ -57,7 +58,8 @@
     }
     proxyCounter += 1;
     watched += 1;
-    if (watched == 1) {
+    if (watched == 1 && !hasInitialized) {
+      hasInitialized = true;
       initTacked();
     }
     checkTacked();
@@ -163,19 +165,21 @@
     $elem.width(setTo);
   }
 
+  function setAllTackedWidth() {
+    var y,
+        i;
+    for (y in tackPoints) {
+      for (i = tackPoints[y].tacked.length - 1; i >= 0; i--) {
+        setTackededWidth(tackPoints[y].tacked[i]);
+      }
+    }
+  }
+
   function initTacked() {
-    if(watched) {
-      // lastY = $(window).scrollTop();
+    if (watched) {
       $(window).scroll(checkTacked);
       $('body').on('orientationchange', function() {
-          var y,
-              i;
-          setTackededWidth();
-          for (y in tackPoints) {
-            for (i = tackPoints[y].tacked.length - 1; i >= 0; i--) {
-              setTackededWidth(tackPoints[y].tacked[i]);
-            }
-          }
+          setAllTackedWidth();
           checkTacked();
       }).on('touchend', function(e) {
         // Since scroll doesn't register until scrollend.
