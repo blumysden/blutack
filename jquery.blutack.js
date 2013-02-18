@@ -228,6 +228,9 @@
         remove.apply(this);
       });
     }
+    if (options == 'tacked') {
+      return this.hasClass(tackedClass);
+    }
     return this.each(function() {
       add.apply(this, [parseOptions(this, options)]);
     });
