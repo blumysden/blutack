@@ -119,8 +119,7 @@
         tacked,
         free,
         y,
-        i,
-        count;
+        i;
 
     if (e) {
       lastY = scrollTop;
@@ -181,7 +180,7 @@
       $('body').on('orientationchange', function() {
           setAllTackedWidth();
           checkTacked();
-      }).on('touchend', function(e) {
+      }).on('touchend', function() {
         // Since scroll doesn't register until scrollend.
         // This seems to work well on scroll down anyway.
         checkTacked();

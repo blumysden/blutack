@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Affix Test page</title>
+  <style type="text/css">
+    #container {
+      /*width: 800px;*/
+      height: 2000px;
+      margin: 20px auto;
+      border: 1px solid #666;
+    }
+
+    .blutack {
+      height: 50px;
+      background: #ccc;
+      border: 1px solid #999;
+    }
+
+    #fixme {
+      height: 50px;
+      background: #eee;
+      border: 1px solid #999;
+    }
+
+    #top {
+      height: 150px;
+      background: green;
+    }
+
+    #right {
+      float: right;
+      width: 300px;
+    }
+
+    .right-fix {
+      background: red;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="container">
+    <div id="top">
+      <div class="blutack" data-blutack-options="offsetTop: 20; freezeWidth: false; foo: bar">
+        <p>This should be automatically affixed</p>
+      </div>
+      <div id="fixme">
+        <p>This should be affixed</p>
+      </div>
+    </div>
+    <div id="right">
+      <div class="right-fix">I am right on!!!</div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="jquery.min.js"></script>
+  <script type="text/javascript" src="jquery.blutack.min.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#fixme').blutack({
+        offsetTop: 71
+      });
+      $('.right-fix').blutack()
+    });
+  </script>
+
+</body>
+</html>
