@@ -89,9 +89,9 @@
     var props = getProps($elem),
         $proxy = $('#' + props.proxyId);
     if (!$proxy.length) {
-      $proxy = $('<div id="' + props.proxyId + '"></div>').
-        height(props.height).
-        insertBefore($elem);
+      $proxy = $('<div id="' + props.proxyId + '"></div>');
+      $proxy.height(props.height);
+      $proxy.insertBefore($elem);
     }
     $proxy.show();
     $elem.css({
@@ -109,7 +109,7 @@
     $('#' + props.proxyId).hide();
     $elem.css(props.initial).removeClass(tackedClass);
   }
-  
+
   function checkTacked(e) {
     var scrollTop = $(window).scrollTop(),
         scrollDir = (e && lastY !== undefined) ? ((scrollTop > lastY) ?
