@@ -3,6 +3,7 @@
 
   var context = this,
       $ = context.jQuery,
+      added = [],
       tackPoints = {},
       proxyCounter = 0,
       proxyId = 'blutack-proxy-',
@@ -44,7 +45,8 @@
             top: $elem.css('top') || 'auto',
             right: $elem.css('right'),
             left: $elem.css('left')
-          }
+          },
+          options: options
         };
     
     setProps($elem, props);
@@ -58,6 +60,7 @@
     }
     proxyCounter += 1;
     watched += 1;
+    added.push(this);
     if (watched == 1 && !hasInitialized) {
       hasInitialized = true;
       initTacked();
@@ -83,6 +86,12 @@
         }
       }
     }
+    for (var i = added.length - 1; i >= 0; i--) {
+      if (added[i] == this) {
+        added.splice(i, 1);
+        break;
+      }
+    };
   }
 
   function tack($elem) {
@@ -109,6 +118,29 @@
     $('#' + props.proxyId).hide();
     $elem.css(props.initial).removeClass(tackedClass);
   }
+
+  var retackAll = (function() {
+    var timer;
+    return function() {
+      clearTimeout(timer);
+      timer = setTimeout(function() {
+        var removed = [],
+            elem,
+            i;
+        for (i = added.length - 1; i >= 0; i--) {
+          elem = added[i];
+          removed.push({
+            elem: elem,
+            options: getProps($(elem)).options
+          });
+          remove.apply(elem);
+        };
+        for (i = removed.length - 1; i >= 0; i--) {
+          add.apply(removed[i].elem, [removed[i].options]);
+        };
+      }, 200);
+    }
+  })();
 
   function checkTacked(e) {
     var scrollTop = $(window).scrollTop(),
@@ -164,27 +196,13 @@
     $elem.width(setTo);
   }
 
-  function setAllTackedWidth() {
-    var y,
-        i;
-    for (y in tackPoints) {
-      for (i = tackPoints[y].tacked.length - 1; i >= 0; i--) {
-        setTackededWidth(tackPoints[y].tacked[i]);
-      }
-    }
-  }
-
   function initTacked() {
     if (watched) {
       $(window).scroll(checkTacked);
-      $('body').on('orientationchange', function() {
-          setAllTackedWidth();
-          checkTacked();
-      }).on('touchend', function() {
-        // Since scroll doesn't register until scrollend.
-        // This seems to work well on scroll down anyway.
-        checkTacked();
-      });
+      $(window).on('resize', retackAll);
+      $('body').
+        on('orientationchange', retackAll).
+        on('touchend', checkTacked);
     }
   }
 
