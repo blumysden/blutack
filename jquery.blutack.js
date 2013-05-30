@@ -41,7 +41,7 @@
           proxyId: proxyId + proxyCounter,
           keepWithin: (options.keepWithin) ? $(options.keepWithin) : null,
           // store height for keepWithin checks; how to handle if it changes?
-          height: $elem.height(),
+          height: $elem.outerHeight(),
           initial: {
             position: position,
             width: (options.freezeWidth) ? $elem.css('width') : 'auto',
@@ -115,13 +115,15 @@
       left: props.offsetLeft,
       right: 'auto'
     }).
-    addClass(tackedClass);
+    addClass(tackedClass).
+    data('isPinched', false);
   }
 
-  function pinch($elem, pinchAt) {
+  function pinch($elem, delta) {
+    var props = getProps($elem);
     $elem.css({
-
-    })
+      top: props.offsetTop + delta
+    }).data('isPinched', true);
   }
 
   function peel($elem) {
@@ -153,15 +155,19 @@
     };
   })();
 
-  function isWithinWithin($elem, scrollTop) {
+  function checkPinch($elem, scrollTop) {
     var props = getProps($elem),
-        $within = props.keepWithin;
-    if ($within) {
-      return (props.height + props.offsetTop <
-          $within.offset().top + $within.height() - scrollTop);
-    } else {
-      return null;
-    }
+        $within = props.keepWithin,
+        delta;
+      if ($within) {
+        delta = ($within.offset().top + $within.height() - scrollTop) -
+          (props.height + props.offsetTop); // why does this always come up short?
+        if (delta < 0) {
+          pinch($elem, delta);
+        } else if ($elem.data('isPinched') && delta >= 0) {
+          tack($elem);
+        }
+      }
   }
 
   function checkTacked(e) {
@@ -172,6 +178,7 @@
         $elem,
         tacked,
         free,
+        delta,
         y,
         i;
 
@@ -198,12 +205,6 @@
             tack($elem);
             tacked.push($elem);
           }
-          for (i = tacked.length - 1; i >= 0; i--) {
-            // to expensive?
-            if (isWithinWithin(tacked[i], scrollTop) === false) {
-              console.log('let go');
-            }
-          }
           point.fixing = false;
         } else if (scrollDir != 'down' && scrollTop <= y && !point.fixing) {
           point.fixing = true;
@@ -213,6 +214,9 @@
             free.push($elem);
           }
           point.fixing = false;
+        }
+        for (i = tacked.length - 1; i >= 0; i--) {
+          delta = checkPinch(tacked[i], scrollTop);
         }
       }
     }
