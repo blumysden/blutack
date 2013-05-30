@@ -23,7 +23,7 @@
     }
 
     #top {
-      height: 150px;
+      height: 250px;
       background: green;
     }
 
@@ -47,6 +47,9 @@
       <div id="fixme">
         <p>This should be affixed</p>
       </div>
+      <div id="contstrained">
+        <p>I stay in my container</p>
+      </div>
     </div>
     <div id="right">
       <div class="right-fix">I am right on!!!</div>
@@ -60,7 +63,11 @@
       $('#fixme').blutack({
         offsetTop: 71
       });
-      $('.right-fix').blutack()
+      $('.right-fix').blutack();
+      $('#contstrained').blutack({
+        keepWithin: $('#top'),
+        offsetTop: 120
+      })
     });
   </script>
 

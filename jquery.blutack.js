@@ -35,10 +35,13 @@
         tackAt = offset.top - top,
         position = $elem.css('position') || 'static',
         props = {
-          offsetTop: top,
+          offsetTop: parseInt(top, 10),
           offsetLeft: (position != 'static') ? offset.left : 'auto',
           tackAt: tackAt,
           proxyId: proxyId + proxyCounter,
+          keepWithin: (options.keepWithin) ? $(options.keepWithin) : null,
+          // store height for keepWithin checks; how to handle if it changes?
+          height: $elem.height(),
           initial: {
             position: position,
             width: (options.freezeWidth) ? $elem.css('width') : 'auto',
@@ -53,7 +56,8 @@
     if (!tackPoints[tackAt]) {
       tackPoints[tackAt] = {
         free: [$elem],
-        tacked: []
+        tacked: [],
+        pinched: []
       };
     } else {
       tackPoints[tackAt].free.push($elem);
@@ -99,7 +103,8 @@
         $proxy = $('#' + props.proxyId);
     if (!$proxy.length) {
       $proxy = $('<div id="' + props.proxyId + '"></div>');
-      $proxy.height(props.height);
+      // why was blutack working while this didn't?
+      // $proxy.height(props.height);
       $proxy.insertBefore($elem);
     }
     $proxy.show();
@@ -111,6 +116,12 @@
       right: 'auto'
     }).
     addClass(tackedClass);
+  }
+
+  function pinch($elem, pinchAt) {
+    $elem.css({
+
+    })
   }
 
   function peel($elem) {
@@ -134,13 +145,24 @@
             options: getProps($(elem)).options
           });
           remove.apply(elem);
-        };
+        }
         for (i = removed.length - 1; i >= 0; i--) {
           add.apply(removed[i].elem, [removed[i].options]);
-        };
+        }
       }, 200);
-    }
+    };
   })();
+
+  function isWithinWithin($elem, scrollTop) {
+    var props = getProps($elem),
+        $within = props.keepWithin;
+    if ($within) {
+      return (props.height + props.offsetTop <
+          $within.offset().top + $within.height() - scrollTop);
+    } else {
+      return null;
+    }
+  }
 
   function checkTacked(e) {
     var scrollTop = $(window).scrollTop(),
@@ -163,6 +185,7 @@
 
     for (y in tackPoints) {
       if (tackPoints.hasOwnProperty(y)) {
+        y = Number(y);
         point = tackPoints[y];
         tacked = point.tacked;
         free = point.free;
@@ -174,6 +197,12 @@
             $elem = free.pop();
             tack($elem);
             tacked.push($elem);
+          }
+          for (i = tacked.length - 1; i >= 0; i--) {
+            // to expensive?
+            if (isWithinWithin(tacked[i], scrollTop) === false) {
+              console.log('let go');
+            }
           }
           point.fixing = false;
         } else if (scrollDir != 'down' && scrollTop <= y && !point.fixing) {
