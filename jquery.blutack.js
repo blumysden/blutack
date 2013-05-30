@@ -56,8 +56,7 @@
     if (!tackPoints[tackAt]) {
       tackPoints[tackAt] = {
         free: [$elem],
-        tacked: [],
-        pinched: []
+        tacked: []
       };
     } else {
       tackPoints[tackAt].free.push($elem);
@@ -103,8 +102,6 @@
         $proxy = $('#' + props.proxyId);
     if (!$proxy.length) {
       $proxy = $('<div id="' + props.proxyId + '"></div>');
-      // why was blutack working while this didn't?
-      // $proxy.height(props.height);
       $proxy.insertBefore($elem);
     }
     $proxy.show();
@@ -178,7 +175,6 @@
         $elem,
         tacked,
         free,
-        delta,
         y,
         i;
 
@@ -216,7 +212,7 @@
           point.fixing = false;
         }
         for (i = tacked.length - 1; i >= 0; i--) {
-          delta = checkPinch(tacked[i], scrollTop);
+          checkPinch(tacked[i], scrollTop);
         }
       }
     }
