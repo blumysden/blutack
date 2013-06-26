@@ -47,7 +47,8 @@
             width: (options.freezeWidth) ? $elem.css('width') : 'auto',
             top: $elem.css('top') || 'auto',
             right: $elem.css('right'),
-            left: $elem.css('left')
+            left: $elem.css('left'),
+            'float': $elem.css('float')
           },
           options: options
         };
@@ -99,8 +100,9 @@
 
   function tack($elem) {
     var props = getProps($elem),
-        $proxy = $('#' + props.proxyId);
-    if (!$proxy.length) {
+        $proxy = $('#' + props.proxyId),
+        newProxy = !$proxy.length;
+    if (newProxy) {
       $proxy = $('<div id="' + props.proxyId + '"></div>');
       $proxy.insertBefore($elem);
     }
@@ -114,7 +116,10 @@
     }).
     addClass(tackedClass).
     data('isPinched', false);
-    $proxy.height(props.height).show();
+    if (newProxy) {
+      $proxy.height(props.height).css(props.initial);
+    }
+    $proxy.show();
   }
 
   function pinch($elem, delta) {
