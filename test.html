@@ -10,7 +10,7 @@
       border: 1px solid #666;
     }
 
-    .blutack {
+    #auto-fix  {
       height: 50px;
       background: #ccc;
       border: 1px solid #999;
@@ -41,7 +41,7 @@
 
   <div id="container">
     <div id="top">
-      <div class="blutack" data-blutack-options="offsetTop: 20; freezeWidth: false; foo: bar">
+      <div id="auto-fix" class="blutack" data-blutack-options="offsetTop: 20; freezeWidth: false; foo: bar">
         <p>This should be automatically affixed</p>
       </div>
       <div id="fixme">
@@ -53,6 +53,44 @@
     </div>
     <div id="right">
       <div class="right-fix">I am right on!!!</div>
+    </div>
+    <div id="tall-container" style="margin: 0 30px 0 10px; border: 1px solid #99ccff; padding: 10px;">
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+      consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+      cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+      proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+      consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+      cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+      proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      <p class="blutack" data-blutack-options="offsetTop: 200;"><strong>I WILL BE TACKED BUT THIS COLUMN WILL STAY THE SAME HEIGHT, WHICH IS <span id="this-big"></span></strong> (This shouldn't change as middle p gets tacked.) Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+      consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+      cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+      proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+      consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+      cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+      proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+      consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+      cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+      proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+      consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+      cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+      proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
     </div>
   </div>
 
@@ -67,7 +105,14 @@
       $('#contstrained').blutack({
         keepWithin: $('#top'),
         offsetTop: 120
-      })
+      });
+      var $tallboy = $('#tall-container'),
+          $thisBig = $('#this-big'),
+          howBig = function() {
+            $thisBig.text($tallboy.height());
+          };
+      howBig();
+      $(window).on('scroll', howBig)
     });
   </script>
 

@@ -104,16 +104,17 @@
       $proxy = $('<div id="' + props.proxyId + '"></div>');
       $proxy.insertBefore($elem);
     }
-    $proxy.show();
+    // $proxy.show();
+    setTackededWidth($elem);
     $elem.css({
       position: 'fixed',
       top: props.offsetTop,
-      width: setTackededWidth($elem),
       left: props.offsetLeft,
       right: 'auto'
     }).
     addClass(tackedClass).
     data('isPinched', false);
+    $proxy.height(props.height).show();
   }
 
   function pinch($elem, delta) {
@@ -127,6 +128,12 @@
     var props = getProps($elem);
     $('#' + props.proxyId).hide();
     $elem.css(props.initial).removeClass(tackedClass);
+  }
+
+  function retack() {
+    var options = getProps($(this)).options;
+    remove.apply(this);
+    add.apply(this, [options]);
   }
 
   var retackAll = (function() {
@@ -272,6 +279,11 @@
     if (options == 'remove') {
       return this.each(function() {
         remove.apply(this);
+      });
+    }
+    if (options == 'retack') {
+      return this.each(function() {
+        retack.apply(this);
       });
     }
     if (options == 'tacked') {
