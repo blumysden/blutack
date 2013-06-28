@@ -52,7 +52,7 @@
           },
           options: options
         };
-    
+        
     setProps($elem, props);
     if (!tackPoints[tackAt]) {
       tackPoints[tackAt] = {
@@ -136,7 +136,11 @@
   }
 
   function retack() {
-    var options = getProps($(this)).options;
+    var props = getProps($(this)),
+        options = (props) ? props.options : null;
+    if (!props) {
+      return false;
+    }
     remove.apply(this);
     add.apply(this, [options]);
   }
