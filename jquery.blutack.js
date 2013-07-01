@@ -10,10 +10,18 @@
       tackedClass = 'blutacked',
       watched = 0,
       hasInitialized = false,
-      lastY;
+      lastY,
+      scrollTimer,
+      $doc = $(document),
+      docHeight;
 
   if ($.fn.blutack) {
     return false;
+  }
+
+  function isNew(elem) {
+    var props = getProps($(elem))
+    return props === undefined || props === null;
   }
 
   function getProps($elem) {
@@ -26,7 +34,7 @@
 
   function add(options) {
     // don't re-add:
-    if (getProps($(this))) {
+    if (!isNew(this)) {
       return;
     }
     var $elem = $(this),
@@ -184,6 +192,19 @@
   }
 
   function checkTacked(e) {
+    if (!scrollTimer) {
+      var curHeight = $doc.height();
+      // check the height!
+      if (curHeight != docHeight) {
+        docHeight = curHeight;
+        retackAll();
+      }
+    } else {
+      clearTimeout(scrollTimer);
+    }
+    scrollTimer = setTimeout(function() {
+      scrollTimer = null;
+    }, 300);
     var scrollTop = $(window).scrollTop(),
         scrollDir = (e && lastY !== undefined) ? ((scrollTop > lastY) ?
           'down' : 'up') : null,
@@ -243,6 +264,7 @@
 
   function initTacked() {
     if (watched) {
+      docHeight = $doc.height();
       $(window).scroll(checkTacked);
       $(window).on('resize', retackAll);
       $('body').
