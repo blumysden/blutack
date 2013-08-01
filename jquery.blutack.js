@@ -120,7 +120,10 @@
       position: 'fixed',
       top: props.offsetTop,
       left: props.offsetLeft,
-      right: 'auto'
+      right: 'auto',
+      // required after chrome stacking context update:
+      // http://updates.html5rocks.com/2012/09/Stacking-Changes-Coming-to-position-fixed-elements
+      'z-index': 2147483647
     }).
     addClass(tackedClass).
     data('isPinched', false);
